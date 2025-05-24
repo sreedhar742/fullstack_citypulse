@@ -1,0 +1,8 @@
+from django.urls import path
+from .views import NotificationsByUserAPIView, UnreadNotificationsAPIView, NotificationsByTimeAPIView
+
+urlpatterns = [
+    path('notifications/user/<int:user_id>/', NotificationsByUserAPIView.as_view(), name='notifications-by-user'),
+    path('notifications/unread/', UnreadNotificationsAPIView.as_view(), name='unread-notifications'),
+    path('notifications/time/<int:days>/', NotificationsByTimeAPIView.as_view(), name='notifications-by-time'),
+]
