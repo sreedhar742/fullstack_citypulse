@@ -21,6 +21,8 @@ export const complaintsService = {
 
   async createComplaint(data: NewComplaintData): Promise<Complaint> {
     // Handle file uploads using FormData
+    console.log("Creating complaint with data:", data);
+    
     const formData = new FormData();
 
     // Add text fields
@@ -28,7 +30,7 @@ export const complaintsService = {
     formData.append("description", data.description);
     formData.append("category", data.category);
     formData.append("location", data.location);
-
+    
     if (data.latitude) formData.append("latitude", data.latitude.toString());
     if (data.longitude) formData.append("longitude", data.longitude.toString());
 
@@ -38,9 +40,9 @@ export const complaintsService = {
         formData.append(`images[${index}]`, image);
       });
     }
-
+    console.log("FormData for complaint:", formData);
     const response = await apiClient.post<Complaint>(
-      "/api/complaints/",
+      "/api/complaints-create/",
       formData,
       {
         headers: {
@@ -48,7 +50,7 @@ export const complaintsService = {
         },
       },
     );
-
+    console.log("Created complaint response:", response.data);
     return response.data;
   },
 
