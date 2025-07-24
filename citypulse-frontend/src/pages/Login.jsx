@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import './login.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -41,26 +42,26 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mb-4">
-            <span className="text-white font-bold text-2xl">C</span>
+    <div className="login-container">
+      <div className="login-card-wrapper">
+        <div className="login-header">
+          <div className="logo-container">
+            <span className="logo-text">C</span>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to CityPulse</h2>
-          <p className="text-gray-600">Sign in to your account to continue</p>
+          <h2 className="login-title">Welcome to CityPulse</h2>
+          <p className="login-subtitle">Sign in to your account to continue</p>
         </div>
 
-        <div className="card p-8">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        <div className="login-card">
+          <form className="login-form" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm">
+              <div className="login-error">
                 {error}
               </div>
             )}
 
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="form-group">
+              <label htmlFor="username" className="form-label">
                 Username
               </label>
               <input
@@ -68,37 +69,37 @@ const Login = () => {
                 name="username"
                 type="text"
                 required
-                className="input"
+                className="form-input"
                 placeholder="Enter your username"
                 value={formData.username}
                 onChange={handleChange}
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
                 Password
               </label>
-              <div className="relative">
+              <div className="password-input-container">
                 <input
                   id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   required
-                  className="input pr-10"
+                  className="form-input"
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
+                    <EyeOff className="toggle-icon" />
                   ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
+                    <Eye className="toggle-icon" />
                   )}
                 </button>
               </div>
@@ -107,21 +108,21 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full flex items-center justify-center space-x-2"
+              className="login-button"
             >
               {loading ? (
                 <LoadingSpinner size="sm" />
               ) : (
                 <>
-                  <LogIn className="w-4 h-4" />
+                  <LogIn className="button-icon" />
                   <span>Sign In</span>
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="login-footer">
+            <p className="demo-text">
               Demo credentials: admin/admin or create a new account
             </p>
           </div>

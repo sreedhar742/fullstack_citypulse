@@ -8,7 +8,7 @@ import Complaints from './pages/Complaints';
 import NewComplaint from './pages/NewComplaint';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
-
+import './pages/base.css';
 function App() {
   return (
     <AuthProvider>

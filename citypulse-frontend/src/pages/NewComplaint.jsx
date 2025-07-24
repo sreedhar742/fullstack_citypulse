@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Camera, Send } from 'lucide-react';
 import { complaintsAPI } from '../utils/api';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import './new-complaint.css';
 
 const NewComplaint = () => {
   const navigate = useNavigate();
@@ -88,50 +89,50 @@ const NewComplaint = () => {
 
   if (success) {
     return (
-      <div className="max-w-2xl mx-auto text-center py-12">
+      <div className="success-container">
         <div className="animate-bounce-in">
-          <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="success-icon">
             <Send className="w-8 h-8 text-success-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Complaint Submitted!</h2>
-          <p className="text-gray-600 mb-4">
+          <h2 className="success-title">Complaint Submitted!</h2>
+          <p className="success-message">
             Your complaint has been successfully submitted and will be reviewed by our team.
           </p>
-          <p className="text-sm text-gray-500">Redirecting to complaints page...</p>
+          <p className="success-redirect">Redirecting to complaints page...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto animate-fade-in">
+    <div className="complaint-container animate-fade-in">
       {/* Header */}
-      <div className="flex items-center space-x-4 mb-8">
+      <div className="complaint-header">
         <button
           onClick={() => navigate('/complaints')}
-          className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+          className="back-button"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">File New Complaint</h1>
-          <p className="text-gray-600 mt-1">Report an issue in your area</p>
+          <h1 className="complaint-title">File New Complaint</h1>
+          <p className="complaint-subtitle">Report an issue in your area</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {error && (
-          <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm">
+          <div className="error-message">
             {error}
           </div>
         )}
 
         {/* Basic Information */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+        <div className="card card-section">
+          <h2 className="section-title">Basic Information</h2>
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 Title *
               </label>
               <input
@@ -145,15 +146,15 @@ const NewComplaint = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 Description *
               </label>
               <textarea
                 name="description"
                 required
                 rows={4}
-                className="input resize-none"
+                className="textarea"
                 placeholder="Provide detailed information about the issue"
                 value={formData.description}
                 onChange={handleChange}
@@ -163,17 +164,13 @@ const NewComplaint = () => {
         </div>
 
         {/* Category Selection */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Category *</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card card-section">
+          <h2 className="section-title">Category *</h2>
+          <div className="category-grid">
             {categories.map((category) => (
               <label
                 key={category.value}
-                className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-colors ${
-                  formData.category === category.value
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`category-option ${formData.category === category.value ? 'selected' : ''}`}
               >
                 <input
                   type="radio"
@@ -181,27 +178,24 @@ const NewComplaint = () => {
                   value={category.value}
                   checked={formData.category === category.value}
                   onChange={handleChange}
-                  className="sr-only"
+                  className="category-radio"
+                  required
                 />
-                <div className="text-2xl mr-3">{category.icon}</div>
-                <span className="font-medium text-gray-900">{category.label}</span>
+                <div className="category-icon">{category.icon}</div>
+                <span className="category-label">{category.label}</span>
               </label>
             ))}
           </div>
         </div>
 
         {/* Severity Selection */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Priority Level *</h2>
+        <div className="card card-section">
+          <h2 className="section-title">Priority Level *</h2>
           <div className="space-y-3">
             {severities.map((severity) => (
               <label
                 key={severity.value}
-                className={`flex items-start p-4 rounded-lg border-2 cursor-pointer transition-colors ${
-                  formData.severity === severity.value
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`severity-option ${formData.severity === severity.value ? 'selected' : ''}`}
               >
                 <input
                   type="radio"
@@ -209,11 +203,12 @@ const NewComplaint = () => {
                   value={severity.value}
                   checked={formData.severity === severity.value}
                   onChange={handleChange}
-                  className="sr-only"
+                  className="severity-radio"
+                  required
                 />
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">{severity.label}</div>
-                  <div className="text-sm text-gray-600">{severity.description}</div>
+                <div>
+                  <div className="severity-label">{severity.label}</div>
+                  <div className="severity-description">{severity.description}</div>
                 </div>
               </label>
             ))}
@@ -221,21 +216,21 @@ const NewComplaint = () => {
         </div>
 
         {/* Location */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Location *</h2>
+        <div className="card card-section">
+          <h2 className="section-title">Location *</h2>
           <div className="space-y-4">
             <button
               type="button"
               onClick={getCurrentLocation}
-              className="btn-secondary w-full"
+              className="location-btn"
             >
-              <MapPin className="w-4 h-4 mr-2" />
+              <MapPin className="location-btn-icon w-4 h-4" />
               Use Current Location
             </button>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="coords-grid">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="form-label">
                   Latitude *
                 </label>
                 <input
@@ -250,7 +245,7 @@ const NewComplaint = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="form-label">
                   Longitude *
                 </label>
                 <input
@@ -269,12 +264,12 @@ const NewComplaint = () => {
         </div>
 
         {/* Image Upload */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Photo (Optional)</h2>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <Camera className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+        <div className="card card-section">
+          <h2 className="section-title">Photo (Optional)</h2>
+          <div className="image-upload-area">
+            <Camera className="image-upload-icon w-8 h-8" />
             <label className="cursor-pointer">
-              <span className="text-sm text-gray-600">
+              <span className="image-upload-text">
                 Click to upload a photo or drag and drop
               </span>
               <input
@@ -282,11 +277,11 @@ const NewComplaint = () => {
                 name="image"
                 accept="image/*"
                 onChange={handleChange}
-                className="sr-only"
+                className="image-upload-input"
               />
             </label>
             {formData.image && (
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="image-selected">
                 Selected: {formData.image.name}
               </p>
             )}
@@ -294,7 +289,7 @@ const NewComplaint = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-end space-x-4">
+        <div className="form-buttons">
           <button
             type="button"
             onClick={() => navigate('/complaints')}
@@ -305,13 +300,13 @@ const NewComplaint = () => {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary flex items-center space-x-2"
+            className="btn-primary"
           >
             {loading ? (
               <LoadingSpinner size="sm" />
             ) : (
               <>
-                <Send className="w-4 h-4" />
+                <Send className="btn-icon w-4 h-4" />
                 <span>Submit Complaint</span>
               </>
             )}

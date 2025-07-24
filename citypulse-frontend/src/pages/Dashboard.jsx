@@ -13,6 +13,7 @@ import {
 import { complaintsAPI, usersAPI, workersAPI } from '../utils/api';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import StatusBadge from '../components/UI/StatusBadge';
+import './dashboard.css';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -106,7 +107,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="loading-container">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -132,22 +133,22 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="dashboard-stats">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.title} className="card p-6 animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
-              <div className="flex items-center justify-between">
+            <div key={stat.title} className="card stat-card" style={{ animationDelay: `${index * 100}ms` }}>
+              <div className="stat-card-header">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-2">{stat.value}</p>
-                  <div className="flex items-center mt-2">
+                  <p className="stat-card-title">{stat.title}</p>
+                  <p className="stat-card-value">{stat.value}</p>
+                  <div className="stat-card-change">
                     <TrendingUp className="w-4 h-4 text-success-500 mr-1" />
                     <span className="text-sm text-success-600 font-medium">{stat.change}</span>
                     <span className="text-sm text-gray-500 ml-1">vs last month</span>
                   </div>
                 </div>
-                <div className={`p-3 rounded-xl bg-${stat.color}-100`}>
+                <div className={`stat-card-icon-container bg-${stat.color}-100`}>
                   <Icon className={`w-6 h-6 text-${stat.color}-600`} />
                 </div>
               </div>
@@ -157,31 +158,29 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="dashboard-activity">
         {/* Recent Complaints */}
         <div className="card">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Complaints</h2>
-              <Link to="/complaints" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                View all
-              </Link>
-            </div>
+          <div className="card-header">
+            <h2 className="card-title">Recent Complaints</h2>
+            <Link to="/complaints" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+              View all
+            </Link>
           </div>
-          <div className="p-6">
+          <div className="card-body">
             {recentComplaints.length > 0 ? (
-              <div className="space-y-4">
+              <div className="complaints-list">
                 {recentComplaints.map((complaint) => (
-                  <div key={complaint.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="text-2xl">{getCategoryIcon(complaint.category)}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                  <div key={complaint.id} className="complaint-item">
+                    <div className="complaint-icon">{getCategoryIcon(complaint.category)}</div>
+                    <div className="complaint-content">
+                      <p className="complaint-title">
                         {complaint.title}
                       </p>
-                      <p className="text-sm text-gray-500 truncate">
+                      <p className="complaint-description">
                         {complaint.description}
                       </p>
-                      <div className="flex items-center space-x-2 mt-2">
+                      <div className="complaint-meta">
                         <StatusBadge status={complaint.severity} type="severity" />
                         <span className="text-xs text-gray-400">•</span>
                         <div className="flex items-center text-xs text-gray-500">
@@ -190,7 +189,7 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="complaint-date">
                       {new Date(complaint.created_at).toLocaleDateString()}
                     </div>
                   </div>
@@ -207,47 +206,47 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <div className="card">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+          <div className="card-header">
+            <h2 className="card-title">Quick Actions</h2>
           </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 gap-4">
+          <div className="card-body">
+            <div className="actions-grid">
               <Link
                 to="/complaints/new"
-                className="flex items-center p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary-300 hover:bg-primary-50 transition-colors group"
+                className="action-item"
               >
-                <div className="p-2 rounded-lg bg-primary-100 group-hover:bg-primary-200 transition-colors">
+                <div className="action-icon-container bg-primary-100">
                   <FileText className="w-5 h-5 text-primary-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-900">File New Complaint</p>
-                  <p className="text-xs text-gray-500">Report a new issue in your area</p>
+                <div className="action-content">
+                  <p className="action-title">File New Complaint</p>
+                  <p className="action-description">Report a new issue in your area</p>
                 </div>
               </Link>
 
               <Link
                 to="/users"
-                className="flex items-center p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary-300 hover:bg-primary-50 transition-colors group"
+                className="action-item"
               >
-                <div className="p-2 rounded-lg bg-success-100 group-hover:bg-success-200 transition-colors">
+                <div className="action-icon-container bg-success-100">
                   <Users className="w-5 h-5 text-success-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-900">Manage Users</p>
-                  <p className="text-xs text-gray-500">Add or manage system users</p>
+                <div className="action-content">
+                  <p className="action-title">Manage Users</p>
+                  <p className="action-description">Add or manage system users</p>
                 </div>
               </Link>
 
               <Link
                 to="/notifications"
-                className="flex items-center p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary-300 hover:bg-primary-50 transition-colors group"
+                className="action-item"
               >
-                <div className="p-2 rounded-lg bg-warning-100 group-hover:bg-warning-200 transition-colors">
+                <div className="action-icon-container bg-warning-100">
                   <AlertTriangle className="w-5 h-5 text-warning-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-900">View Notifications</p>
-                  <p className="text-xs text-gray-500">Check recent system notifications</p>
+                <div className="action-content">
+                  <p className="action-title">View Notifications</p>
+                  <p className="action-description">Check recent system notifications</p>
                 </div>
               </Link>
             </div>

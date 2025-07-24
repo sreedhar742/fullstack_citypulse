@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Bell, Clock, CheckCircle, Filter } from 'lucide-react';
 import { notificationsAPI } from '../utils/api';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import './notifications.css';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -78,42 +79,38 @@ const Notifications = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="loading-container">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="notifications-container animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="notifications-header">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-gray-600 mt-1">Stay updated with the latest system activities</p>
+          <h1 className="notifications-title">Notifications</h1>
+          <p className="notifications-subtitle">Stay updated with the latest system activities</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Bell className="w-5 h-5 text-gray-400" />
-          <span className="text-sm text-gray-600">
+        <div className="unread-counter">
+          <Bell className="unread-icon" />
+          <span>
             {notifications.filter(n => !n.is_read).length} unread
           </span>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="card p-6">
-        <div className="flex items-center space-x-4">
-          <Filter className="w-4 h-4 text-gray-400" />
-          <div className="flex space-x-2">
+      <div className="filters-card">
+        <div className="filters-container">
+          <Filter className="filter-icon" />
+          <div className="filters-buttons">
             {filters.map(filterOption => (
               <button
                 key={filterOption.value}
                 onClick={() => setFilter(filterOption.value)}
-                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                  filter === filterOption.value
-                    ? 'bg-primary-100 text-primary-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                className={filter === filterOption.value ? 'filter-button filter-button-active' : 'filter-button filter-button-default'}
               >
                 {filterOption.label}
               </button>
@@ -124,35 +121,31 @@ const Notifications = () => {
 
       {/* Notifications List */}
       {notifications.length > 0 ? (
-        <div className="space-y-4">
+        <div className="notifications-list">
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`card p-6 transition-all duration-200 ${
-                !notification.is_read
-                  ? 'border-l-4 border-l-primary-500 bg-primary-50/30'
-                  : 'hover:shadow-md'
-              }`}
+              className={`notification-card ${!notification.is_read ? 'notification-card-unread' : ''}`}
             >
-              <div className="flex items-start space-x-4">
-                <div className="text-2xl">{getNotificationIcon(notification.message)}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <p className="text-gray-900 font-medium">
+              <div className="notification-container">
+                <div className="notification-icon">{getNotificationIcon(notification.message)}</div>
+                <div className="notification-content">
+                  <div className="notification-header">
+                    <p className="notification-message">
                       {notification.message}
                     </p>
                     {!notification.is_read && (
-                      <div className="w-2 h-2 bg-primary-500 rounded-full ml-2 mt-2 flex-shrink-0" />
+                      <div className="notification-indicator" />
                     )}
                   </div>
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-3 h-3" />
+                  <div className="notification-meta">
+                    <div className="notification-time">
+                      <Clock className="time-icon" />
                       <span>{formatTimeAgo(notification.created_at)}</span>
                     </div>
                     {notification.is_read && (
-                      <div className="flex items-center space-x-1">
-                        <CheckCircle className="w-3 h-3 text-success-500" />
+                      <div className="notification-read-status">
+                        <CheckCircle className="check-icon" />
                         <span>Read</span>
                       </div>
                     )}
@@ -163,10 +156,10 @@ const Notifications = () => {
           ))}
         </div>
       ) : (
-        <div className="card p-12 text-center">
-          <div className="text-6xl mb-4">🔔</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
-          <p className="text-gray-500">
+        <div className="empty-state">
+          <div className="empty-icon">🔔</div>
+          <h3 className="empty-title">No notifications</h3>
+          <p className="empty-message">
             {filter === 'unread'
               ? "You're all caught up! No unread notifications."
               : 'No notifications found for the selected time period.'}
