@@ -16,6 +16,12 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Don't override Content-Type if it's already set (for multipart/form-data)
+  if (config.headers['Content-Type'] === 'multipart/form-data') {
+    delete config.headers['Content-Type']; // Let the browser set it with the boundary
+  }
+  
   return config;
 });
 
@@ -37,6 +43,11 @@ api.interceptors.response.use(
           
           const { access } = response.data;
           localStorage.setItem('access_token', access);
+          
+          // If the original request used FormData, we need to make sure not to set Content-Type
+          if (originalRequest.headers['Content-Type'] === 'multipart/form-data') {
+            delete originalRequest.headers['Content-Type'];
+          }
           
           return api(originalRequest);
         } catch (refreshError) {
@@ -62,7 +73,15 @@ export const authAPI = {
 export const complaintsAPI = {
   getAll: () => api.get('/complaints/'),
   getUserComplaints: () => api.get('/complaints/user/'),
-  create: (complaintData) => api.post('/complaints-create/', complaintData),
+  create: (complaintData) => {
+    // Special handling for multipart/form-data (file uploads)
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    return api.post('/complaints-create/', complaintData, config);
+  },
   getStatus: (complaintId) => api.get(`/complaints/${complaintId}/status/`),
 };
 

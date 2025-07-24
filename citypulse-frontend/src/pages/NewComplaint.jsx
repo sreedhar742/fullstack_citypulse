@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Camera, Send } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Send, AlertCircle } from 'lucide-react';
 import { complaintsAPI } from '../utils/api';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import './new-complaint.css';
@@ -18,7 +18,9 @@ const NewComplaint = () => {
     image: null,
   });
   const [error, setError] = useState('');
+  const [locationError, setLocationError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
 
   const categories = [
     { value: 'garbage', label: 'Garbage Collection', icon: '🗑️' },
@@ -40,10 +42,40 @@ const NewComplaint = () => {
       [name]: files ? files[0] : value,
     }));
     setError('');
+    
+    // Clear location error when location fields are modified
+    if (name === 'location_lat' || name === 'location_lng') {
+      setLocationError('');
+    }
+  };
+
+  const validateLocation = () => {
+    const lat = parseFloat(formData.location_lat);
+    const lng = parseFloat(formData.location_lng);
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      setLocationError('Please provide valid coordinates');
+      return false;
+    }
+    
+    if (lat < -90 || lat > 90) {
+      setLocationError('Latitude must be between -90 and 90');
+      return false;
+    }
+    
+    if (lng < -180 || lng > 180) {
+      setLocationError('Longitude must be between -180 and 180');
+      return false;
+    }
+    
+    return true;
   };
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
+      setIsLocationLoading(true);
+      setLocationError('');
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setFormData(prev => ({
@@ -51,37 +83,72 @@ const NewComplaint = () => {
             location_lat: position.coords.latitude.toString(),
             location_lng: position.coords.longitude.toString(),
           }));
+          setIsLocationLoading(false);
         },
         (error) => {
           console.error('Error getting location:', error);
-          setError('Unable to get your location. Please enter coordinates manually.');
+          setLocationError('Unable to get your location. Please enter coordinates manually.');
+          setIsLocationLoading(false);
+        },
+        { 
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
-      setError('Geolocation is not supported by this browser.');
+      setLocationError('Geolocation is not supported by this browser.');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate location before submission
+    if (!validateLocation()) {
+      return;
+    }
+    
     setLoading(true);
     setError('');
 
     try {
       const submitData = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (formData[key] !== null && formData[key] !== '') {
-          submitData.append(key, formData[key]);
-        }
-      });
-
+      
+      // Add all non-image fields
+      submitData.append('title', formData.title);
+      submitData.append('description', formData.description);
+      submitData.append('category', formData.category);
+      submitData.append('severity', formData.severity);
+      submitData.append('location_lat', formData.location_lat);
+      submitData.append('location_lng', formData.location_lng);
+      
+      // Only append image if it's actually a File object
+      if (formData.image instanceof File) {
+        submitData.append('image', formData.image);
+      }
+      
+      // Make the API call without headers here - they should be in the API client
       await complaintsAPI.create(submitData);
+      
       setSuccess(true);
       setTimeout(() => {
         navigate('/complaints');
       }, 2000);
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to submit complaint');
+      console.error('Submission error:', error.response?.data || error.message);
+      
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.response?.data?.location_lat) {
+        setLocationError(error.response.data.location_lat[0]);
+      } else if (error.response?.data?.location_lng) {
+        setLocationError(error.response.data.location_lng[0]);
+      } else if (error.response?.data?.image) {
+        setError(`Image error: ${error.response.data.image[0]}`);
+      } else {
+        setError('Failed to submit complaint. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -222,41 +289,57 @@ const NewComplaint = () => {
             <button
               type="button"
               onClick={getCurrentLocation}
+              disabled={isLocationLoading}
               className="location-btn"
             >
-              <MapPin className="location-btn-icon w-4 h-4" />
-              Use Current Location
+              {isLocationLoading ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <MapPin className="location-btn-icon w-4 h-4" />
+              )}
+              {isLocationLoading ? 'Getting Location...' : 'Use Current Location'}
             </button>
+            
+            {locationError && (
+              <div className="location-error">
+                <AlertCircle className="error-icon" />
+                <span>{locationError}</span>
+              </div>
+            )}
             
             <div className="coords-grid">
               <div>
                 <label className="form-label">
-                  Latitude *
+                  Latitude * <span className="required-indicator">(required)</span>
                 </label>
                 <input
                   type="number"
                   name="location_lat"
                   step="any"
                   required
-                  className="input"
+                  className={`input ${locationError ? 'input-error' : ''}`}
                   placeholder="0.000000"
                   value={formData.location_lat}
                   onChange={handleChange}
+                  min="-90"
+                  max="90"
                 />
               </div>
               <div>
                 <label className="form-label">
-                  Longitude *
+                  Longitude * <span className="required-indicator">(required)</span>
                 </label>
                 <input
                   type="number"
                   name="location_lng"
                   step="any"
                   required
-                  className="input"
+                  className={`input ${locationError ? 'input-error' : ''}`}
                   placeholder="0.000000"
                   value={formData.location_lng}
                   onChange={handleChange}
+                  min="-180"
+                  max="180"
                 />
               </div>
             </div>
