@@ -7,7 +7,10 @@ import {
   MapPin, 
   Calendar,
   Eye,
-  MoreVertical
+  MoreVertical,
+  Clock,
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { complaintsAPI } from '../utils/api';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -23,6 +26,8 @@ const Complaints = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSeverity, setSelectedSeverity] = useState('all');
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [complaintStatus, setComplaintStatus] = useState(null);
+  const [statusLoading, setStatusLoading] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
   const categories = [
@@ -95,9 +100,36 @@ const Complaints = () => {
     }
   };
 
-  const handleViewDetails = (complaint) => {
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'pending':
+        return <Clock className="status-icon status-icon-pending" />;
+      case 'in_progress':
+        return <AlertTriangle className="status-icon status-icon-progress" />;
+      case 'resolved':
+        return <CheckCircle className="status-icon status-icon-resolved" />;
+      default:
+        return <Clock className="status-icon status-icon-pending" />;
+    }
+  };
+
+  const handleViewDetails = async (complaint) => {
     setSelectedComplaint(complaint);
+    setComplaintStatus(null);
+    setStatusLoading(true);
     setShowDetailModal(true);
+    
+    try {
+      const response = await complaintsAPI.getStatus(complaint.id);
+      // Handle response array - take the first item if it exists
+      if (response.data && response.data.length > 0) {
+        setComplaintStatus(response.data[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching complaint status:', error);
+    } finally {
+      setStatusLoading(false);
+    }
   };
 
   if (loading) {
@@ -201,7 +233,7 @@ const Complaints = () => {
                   <StatusBadge status={complaint.severity} type="severity" />
                   <div className="card-location">
                     <MapPin className="location-icon" />
-                    <span>Location</span>
+                    <span>Location : {complaint.location_lat} : {complaint.location_lng}</span>
                   </div>
                 </div>
 
@@ -260,6 +292,39 @@ const Complaints = () => {
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Status Information */}
+            <div className="status-section">
+              <h4 className="detail-section-title">Current Status</h4>
+              {statusLoading ? (
+                <div className="status-loading">
+                  <LoadingSpinner size="sm" />
+                  <span>Loading status information...</span>
+                </div>
+              ) : complaintStatus ? (
+                <div className="status-info">
+                  <div className="status-header">
+                    {getStatusIcon(complaintStatus.status)}
+                    <div className="status-details">
+                      <div className="status-label">
+                        Status: <span className={`status-value status-${complaintStatus.status}`}>
+                          {complaintStatus.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="status-updated">
+                        Last updated: <span className="updated-time">
+                          {new Date(complaintStatus.updated_at).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="status-unavailable">
+                  <p>Status information is not available at this time.</p>
+                </div>
+              )}
             </div>
 
             <div className="detail-section">

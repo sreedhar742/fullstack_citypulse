@@ -468,6 +468,124 @@
   border-radius: 0.5rem;
 }
 
+/* Status Section Styles */
+.status-section {
+  background-color: var(--gray-50);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--gray-200);
+}
+
+.status-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.status-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.status-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.status-icon-pending {
+  background-color: var(--warning-100);
+  color: var(--warning-600);
+}
+
+.status-icon-progress {
+  background-color: var(--primary-100);
+  color: var(--primary-600);
+}
+
+.status-icon-resolved {
+  background-color: var(--success-100);
+  color: var(--success-600);
+}
+
+.status-details {
+  flex: 1;
+}
+
+.status-label {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.status-value {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  color: var(--warning-600);
+}
+
+.status-in_progress {
+  color: var(--primary-600);
+}
+
+.status-resolved {
+  color: var(--success-600);
+}
+
+.status-assignee, .status-updated {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-top: 0.25rem;
+}
+
+.assignee-name, .updated-time {
+  font-weight: 500;
+}
+
+.status-notes, .estimated-completion {
+  background-color: white;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  border: 1px solid var(--gray-200);
+}
+
+.notes-title, .completion-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.notes-content {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  white-space: pre-line;
+}
+
+.completion-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary-600);
+}
+
+.status-unavailable {
+  color: var(--gray-500);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
 /* Status Badge - Include if not in a separate component */
 .status-badge {
   display: inline-flex;
