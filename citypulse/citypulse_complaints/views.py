@@ -30,3 +30,15 @@ class ComplaintStatusView(APIView):
         statuses = ComplaintStatus.objects.filter(complaint_id=complaint_id)
         serializer = ComplaintStatusSerializer(statuses, many=True)
         return Response(serializer.data)
+
+
+class ComplaintCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print("Received data for complaint creation:", request.data)
+        serializer = ComplaintSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
