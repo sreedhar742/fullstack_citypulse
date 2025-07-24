@@ -13,6 +13,7 @@ import { complaintsAPI } from '../utils/api';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import StatusBadge from '../components/UI/StatusBadge';
 import Modal from '../components/UI/Modal';
+import './complaints.css';
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
@@ -101,42 +102,42 @@ const Complaints = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="loading-container">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="complaints-container">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="complaints-header">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Complaints</h1>
-          <p className="text-gray-600 mt-1">Manage and track all citizen complaints</p>
+          <h1 className="complaints-title">Complaints</h1>
+          <p className="complaints-subtitle">Manage and track all citizen complaints</p>
         </div>
-        <Link to="/complaints/new" className="btn-primary">
-          <Plus className="w-4 h-4 mr-2" />
+        <Link to="/complaints/new" className="new-complaint-btn">
+          <Plus className="new-complaint-icon" />
           New Complaint
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="card p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <div className="filters-card">
+        <div className="filters-grid">
+          <div className="search-container">
+            <Search className="search-icon" />
             <input
               type="text"
               placeholder="Search complaints..."
-              className="input pl-10"
+              className="search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           
           <select
-            className="input"
+            className="filter-select"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -148,7 +149,7 @@ const Complaints = () => {
           </select>
 
           <select
-            className="input"
+            className="filter-select"
             value={selectedSeverity}
             onChange={(e) => setSelectedSeverity(e.target.value)}
           >
@@ -159,8 +160,8 @@ const Complaints = () => {
             ))}
           </select>
 
-          <div className="flex items-center text-sm text-gray-600">
-            <Filter className="w-4 h-4 mr-2" />
+          <div className="filter-count">
+            <Filter className="filter-count-icon" />
             {filteredComplaints.length} of {complaints.length} complaints
           </div>
         </div>
@@ -168,52 +169,52 @@ const Complaints = () => {
 
       {/* Complaints Grid */}
       {filteredComplaints.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="complaints-grid">
           {filteredComplaints.map((complaint) => (
-            <div key={complaint.id} className="card hover:shadow-lg transition-shadow duration-200">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-2xl">{getCategoryIcon(complaint.category)}</div>
+            <div key={complaint.id} className="complaint-card">
+              <div className="card-content">
+                <div className="card-header">
+                  <div className="category-info">
+                    <div className="category-icon">{getCategoryIcon(complaint.category)}</div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 line-clamp-1">
+                      <h3 className="complaint-title">
                         {complaint.title}
                       </h3>
-                      <p className="text-sm text-gray-500 capitalize">
+                      <p className="complaint-category">
                         {complaint.category}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => handleViewDetails(complaint)}
-                    className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                    className="more-btn"
                   >
-                    <MoreVertical className="w-4 h-4" />
+                    <MoreVertical className="more-icon" />
                   </button>
                 </div>
 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className="complaint-description">
                   {complaint.description}
                 </p>
 
-                <div className="flex items-center justify-between mb-4">
+                <div className="card-meta">
                   <StatusBadge status={complaint.severity} type="severity" />
-                  <div className="flex items-center text-xs text-gray-500">
-                    <MapPin className="w-3 h-3 mr-1" />
+                  <div className="card-location">
+                    <MapPin className="location-icon" />
                     <span>Location</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Calendar className="w-3 h-3 mr-1" />
+                <div className="card-footer">
+                  <div className="card-date">
+                    <Calendar className="date-icon" />
                     <span>{new Date(complaint.created_at).toLocaleDateString()}</span>
                   </div>
                   <button
                     onClick={() => handleViewDetails(complaint)}
-                    className="btn-secondary text-xs px-3 py-1"
+                    className="view-btn"
                   >
-                    <Eye className="w-3 h-3 mr-1" />
+                    <Eye className="view-icon" />
                     View
                   </button>
                 </div>
@@ -222,16 +223,16 @@ const Complaints = () => {
           ))}
         </div>
       ) : (
-        <div className="card p-12 text-center">
-          <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No complaints found</h3>
-          <p className="text-gray-500 mb-6">
+        <div className="empty-state">
+          <div className="empty-icon">📋</div>
+          <h3 className="empty-title">No complaints found</h3>
+          <p className="empty-message">
             {searchTerm || selectedCategory !== 'all' || selectedSeverity !== 'all'
               ? 'Try adjusting your filters to see more results.'
               : 'Get started by filing your first complaint.'}
           </p>
-          <Link to="/complaints/new" className="btn-primary">
-            <Plus className="w-4 h-4 mr-2" />
+          <Link to="/complaints/new" className="new-complaint-btn">
+            <Plus className="new-complaint-icon" />
             File New Complaint
           </Link>
         </div>
@@ -245,53 +246,53 @@ const Complaints = () => {
         size="lg"
       >
         {selectedComplaint && (
-          <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className="text-3xl">{getCategoryIcon(selectedComplaint.category)}</div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <div className="detail-container">
+            <div className="detail-header">
+              <div className="detail-icon">{getCategoryIcon(selectedComplaint.category)}</div>
+              <div className="detail-info">
+                <h3 className="detail-title">
                   {selectedComplaint.title}
                 </h3>
-                <div className="flex items-center space-x-4 mb-4">
+                <div className="detail-meta">
                   <StatusBadge status={selectedComplaint.severity} type="severity" />
-                  <span className="text-sm text-gray-500 capitalize">
+                  <span className="detail-category">
                     {selectedComplaint.category}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-              <p className="text-gray-600">{selectedComplaint.description}</p>
+            <div className="detail-section">
+              <h4 className="detail-section-title">Description</h4>
+              <p className="detail-description">{selectedComplaint.description}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Location</h4>
-                <div className="flex items-center text-sm text-gray-600">
-                  <MapPin className="w-4 h-4 mr-2" />
+            <div className="detail-grid">
+              <div className="detail-section">
+                <h4 className="detail-section-title">Location</h4>
+                <div className="detail-location">
+                  <MapPin className="detail-icon-sm" />
                   <span>
                     {selectedComplaint.location_lat}, {selectedComplaint.location_lng}
                   </span>
                 </div>
               </div>
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Submitted</h4>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Calendar className="w-4 h-4 mr-2" />
+              <div className="detail-section">
+                <h4 className="detail-section-title">Submitted</h4>
+                <div className="detail-date">
+                  <Calendar className="detail-icon-sm" />
                   <span>{new Date(selectedComplaint.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
 
             {selectedComplaint.image && (
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Image</h4>
+              <div className="detail-section">
+                <h4 className="detail-section-title">Image</h4>
                 <img
                   src={selectedComplaint.image}
                   alt="Complaint"
-                  className="w-full h-48 object-cover rounded-lg"
+                  className="detail-image"
                 />
               </div>
             )}
