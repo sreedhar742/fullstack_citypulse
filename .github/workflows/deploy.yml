@@ -7,32 +7,32 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 21
-        
+
     - name: Install dependencies
       run: |
         cd citypulse-frontend
         npm ci
-        
+
     - name: Build project
       run: |
         cd citypulse-frontend
         npm run build
-        
+
     - name: Debug - Verify build output
       run: |
         ls -la
         ls -la citypulse-frontend/
         ls -la citypulse-frontend/dist/ || echo "Dist directory doesn't exist!"
-        
+
     - name: Upload files to temp directory
       uses: appleboy/scp-action@master
       with:
@@ -43,14 +43,14 @@ jobs:
         target: "/home/${{ secrets.USERNAME }}/temp-deploy"
         strip_components: 0
 
-    - name: Move files to /var/www/deployment using sudo
+    - name: Move files to /var/www/deployment using sudo with -S
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
         script: |
-          sudo mkdir -p /var/www/deployment
-          sudo rm -rf /var/www/deployment/*
-          sudo mv /home/${{ secrets.USERNAME }}/temp-deploy/* /var/www/deployment/
-          sudo rm -rf /home/${{ secrets.USERNAME }}/temp-deploy
+          echo "${{ secrets.SSH_PASSWORD }}" | sudo -S mkdir -p /var/www/deployment
+          echo "${{ secrets.SSH_PASSWORD }}" | sudo -S rm -rf /var/www/deployment/*
+          echo "${{ secrets.SSH_PASSWORD }}" | sudo -S mv /home/${{ secrets.USERNAME }}/temp-deploy/* /var/www/deployment/
+          echo "${{ secrets.SSH_PASSWORD }}" | sudo -S rm -rf /home/${{ secrets.USERNAME }}/temp-deploy
