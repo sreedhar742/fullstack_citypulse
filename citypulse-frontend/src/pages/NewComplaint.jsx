@@ -15,7 +15,7 @@ const NewComplaint = () => {
     severity: '',
     location_lat: '',
     location_lng: '',
-    image: null,
+    image: null, // base64 string
   });
   const [error, setError] = useState('');
   const [locationError, setLocationError] = useState('');
@@ -35,39 +35,50 @@ const NewComplaint = () => {
     { value: 'high', label: 'High Priority', description: 'Urgent issue, immediate action needed' },
   ];
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
+
+    if (files && files[0]) {
+      const base64 = await convertToBase64(files[0]);
+      setFormData(prev => ({ ...prev, image: base64 }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+
     setError('');
-    
-    // Clear location error when location fields are modified
     if (name === 'location_lat' || name === 'location_lng') {
       setLocationError('');
     }
   };
 
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = err => reject(err);
+    });
+  };
+
   const validateLocation = () => {
     const lat = parseFloat(formData.location_lat);
     const lng = parseFloat(formData.location_lng);
-    
+
     if (isNaN(lat) || isNaN(lng)) {
       setLocationError('Please provide valid coordinates');
       return false;
     }
-    
+
     if (lat < -90 || lat > 90) {
       setLocationError('Latitude must be between -90 and 90');
       return false;
     }
-    
+
     if (lng < -180 || lng > 180) {
       setLocationError('Longitude must be between -180 and 180');
       return false;
     }
-    
+
     return true;
   };
 
@@ -75,7 +86,7 @@ const NewComplaint = () => {
     if (navigator.geolocation) {
       setIsLocationLoading(true);
       setLocationError('');
-      
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setFormData(prev => ({
@@ -90,7 +101,7 @@ const NewComplaint = () => {
           setLocationError('Unable to get your location. Please enter coordinates manually.');
           setIsLocationLoading(false);
         },
-        { 
+        {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 0
@@ -103,41 +114,22 @@ const NewComplaint = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate location before submission
-    if (!validateLocation()) {
-      return;
-    }
-    
+
+    if (!validateLocation()) return;
+
     setLoading(true);
     setError('');
 
     try {
-      const submitData = new FormData();
-      
-      // Add all non-image fields
-      submitData.append('title', formData.title);
-      submitData.append('description', formData.description);
-      submitData.append('category', formData.category);
-      submitData.append('severity', formData.severity);
-      submitData.append('location_lat', formData.location_lat);
-      submitData.append('location_lng', formData.location_lng);
-      
-      // Only append image if it's actually a File object
-      if (formData.image instanceof File) {
-        submitData.append('image', formData.image);
-      }
-      
-      // Make the API call without headers here - they should be in the API client
-      await complaintsAPI.create(submitData);
-      
+      await complaintsAPI.create(formData); // send as JSON
+
       setSuccess(true);
       setTimeout(() => {
         navigate('/complaints');
       }, 2000);
     } catch (error) {
       console.error('Submission error:', error.response?.data || error.message);
-      
+
       if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else if (error.response?.data?.location_lat) {
@@ -173,12 +165,8 @@ const NewComplaint = () => {
 
   return (
     <div className="complaint-container animate-fade-in">
-      {/* Header */}
       <div className="complaint-header">
-        <button
-          onClick={() => navigate('/complaints')}
-          className="back-button"
-        >
+        <button onClick={() => navigate('/complaints')} className="back-button">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
@@ -188,20 +176,14 @@ const NewComplaint = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
-        {/* Basic Information */}
+        {/* Basic Info */}
         <div className="card card-section">
           <h2 className="section-title">Basic Information</h2>
           <div className="space-y-4">
             <div className="form-group">
-              <label className="form-label">
-                Title *
-              </label>
+              <label className="form-label">Title *</label>
               <input
                 type="text"
                 name="title"
@@ -212,11 +194,8 @@ const NewComplaint = () => {
                 onChange={handleChange}
               />
             </div>
-
             <div className="form-group">
-              <label className="form-label">
-                Description *
-              </label>
+              <label className="form-label">Description *</label>
               <textarea
                 name="description"
                 required
@@ -230,52 +209,45 @@ const NewComplaint = () => {
           </div>
         </div>
 
-        {/* Category Selection */}
+        {/* Category & Severity */}
         <div className="card card-section">
           <h2 className="section-title">Category *</h2>
           <div className="category-grid">
-            {categories.map((category) => (
-              <label
-                key={category.value}
-                className={`category-option ${formData.category === category.value ? 'selected' : ''}`}
-              >
+            {categories.map((cat) => (
+              <label key={cat.value} className={`category-option ${formData.category === cat.value ? 'selected' : ''}`}>
                 <input
                   type="radio"
                   name="category"
-                  value={category.value}
-                  checked={formData.category === category.value}
+                  value={cat.value}
+                  checked={formData.category === cat.value}
                   onChange={handleChange}
                   className="category-radio"
                   required
                 />
-                <div className="category-icon">{category.icon}</div>
-                <span className="category-label">{category.label}</span>
+                <div className="category-icon">{cat.icon}</div>
+                <span className="category-label">{cat.label}</span>
               </label>
             ))}
           </div>
         </div>
 
-        {/* Severity Selection */}
         <div className="card card-section">
           <h2 className="section-title">Priority Level *</h2>
           <div className="space-y-3">
-            {severities.map((severity) => (
-              <label
-                key={severity.value}
-                className={`severity-option ${formData.severity === severity.value ? 'selected' : ''}`}
-              >
+            {severities.map((s) => (
+              <label key={s.value} className={`severity-option ${formData.severity === s.value ? 'selected' : ''}`}>
                 <input
                   type="radio"
                   name="severity"
-                  value={severity.value}
-                  checked={formData.severity === severity.value}
+                  value={s.value}
+                  checked={formData.severity === s.value}
                   onChange={handleChange}
                   className="severity-radio"
                   required
                 />
                 <div>
-                  <div className="severity-label">{severity.label}</div>
-                  <div className="severity-description">{severity.description}</div>
+                  <div className="severity-label">{s.label}</div>
+                  <div className="severity-description">{s.description}</div>
                 </div>
               </label>
             ))}
@@ -299,19 +271,17 @@ const NewComplaint = () => {
               )}
               {isLocationLoading ? 'Getting Location...' : 'Use Current Location'}
             </button>
-            
+
             {locationError && (
               <div className="location-error">
                 <AlertCircle className="error-icon" />
                 <span>{locationError}</span>
               </div>
             )}
-            
+
             <div className="coords-grid">
               <div>
-                <label className="form-label">
-                  Latitude * <span className="required-indicator">(required)</span>
-                </label>
+                <label className="form-label">Latitude *</label>
                 <input
                   type="number"
                   name="location_lat"
@@ -326,9 +296,7 @@ const NewComplaint = () => {
                 />
               </div>
               <div>
-                <label className="form-label">
-                  Longitude * <span className="required-indicator">(required)</span>
-                </label>
+                <label className="form-label">Longitude *</label>
                 <input
                   type="number"
                   name="location_lng"
@@ -364,30 +332,18 @@ const NewComplaint = () => {
               />
             </label>
             {formData.image && (
-              <p className="image-selected">
-                Selected: {formData.image.name}
-              </p>
+              <p className="image-selected">Image selected</p>
             )}
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Buttons */}
         <div className="form-buttons">
-          <button
-            type="button"
-            onClick={() => navigate('/complaints')}
-            className="btn-secondary"
-          >
+          <button type="button" onClick={() => navigate('/complaints')} className="btn-secondary">
             Cancel
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary"
-          >
-            {loading ? (
-              <LoadingSpinner size="sm" />
-            ) : (
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? <LoadingSpinner size="sm" /> : (
               <>
                 <Send className="btn-icon w-4 h-4" />
                 <span>Submit Complaint</span>

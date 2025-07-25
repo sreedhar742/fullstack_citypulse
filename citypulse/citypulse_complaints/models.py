@@ -17,7 +17,7 @@ class Complaint(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     description = models.TextField()
-    image = models.ImageField(upload_to='complaint_images/', null=True, blank=True)
+    image = models.BinaryField(null=True, blank=True)
     location_lat = models.DecimalField(max_digits=9, decimal_places=6)
     location_lng = models.DecimalField(max_digits=9, decimal_places=6)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
