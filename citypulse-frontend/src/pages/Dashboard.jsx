@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   FileText, 
   Users, 
@@ -16,6 +16,8 @@ import StatusBadge from '../components/UI/StatusBadge';
 import './dashboard.css';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalComplaints: 0,
     pendingComplaints: 0,
@@ -50,12 +52,19 @@ const Dashboard = () => {
         totalWorkers: workers.length,
       });
 
-      // Get recent complaints (last 5)
       setRecentComplaints(complaints.slice(0, 5));
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStatClick = (title) => {
+    if (title === 'Total Users') {
+      navigate('/users');
+    } else if (title === 'Total Workers') {
+      navigate('/workers');
     }
   };
 
@@ -88,20 +97,22 @@ const Dashboard = () => {
       color: 'primary',
       change: '+8%',
     },
+    {
+      title: 'Total Workers',
+      value: stats.totalWorkers,
+      icon: Users,
+      color: 'secondary',
+      change: '+10%',
+    },
   ];
 
   const getCategoryIcon = (category) => {
     switch (category) {
-      case 'garbage':
-        return '🗑️';
-      case 'road':
-        return '🛣️';
-      case 'water':
-        return '💧';
-      case 'lights':
-        return '💡';
-      default:
-        return '📋';
+      case 'garbage': return '🗑️';
+      case 'road': return '🛣️';
+      case 'water': return '💧';
+      case 'lights': return '💡';
+      default: return '📋';
     }
   };
 
@@ -115,7 +126,6 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -123,21 +133,20 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <Calendar className="w-4 h-4" />
-          <span>{new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}</span>
+          <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="dashboard-stats">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.title} className="card stat-card" style={{ animationDelay: `${index * 100}ms` }}>
+            <div
+              key={stat.title}
+              className="card stat-card cursor-pointer hover:shadow-lg transition"
+              style={{ animationDelay: `${index * 100}ms` }}
+              onClick={() => handleStatClick(stat.title)}
+            >
               <div className="stat-card-header">
                 <div>
                   <p className="stat-card-title">{stat.title}</p>
@@ -157,9 +166,7 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* Recent Activity */}
       <div className="dashboard-activity">
-        {/* Recent Complaints */}
         <div className="card">
           <div className="card-header">
             <h2 className="card-title">Recent Complaints</h2>
@@ -174,12 +181,8 @@ const Dashboard = () => {
                   <div key={complaint.id} className="complaint-item">
                     <div className="complaint-icon">{getCategoryIcon(complaint.category)}</div>
                     <div className="complaint-content">
-                      <p className="complaint-title">
-                        {complaint.title}
-                      </p>
-                      <p className="complaint-description">
-                        {complaint.description}
-                      </p>
+                      <p className="complaint-title">{complaint.title}</p>
+                      <p className="complaint-description">{complaint.description}</p>
                       <div className="complaint-meta">
                         <StatusBadge status={complaint.severity} type="severity" />
                         <span className="text-xs text-gray-400">•</span>
@@ -204,17 +207,13 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
         <div className="card">
           <div className="card-header">
             <h2 className="card-title">Quick Actions</h2>
           </div>
           <div className="card-body">
             <div className="actions-grid">
-              <Link
-                to="/complaints/new"
-                className="action-item"
-              >
+              <Link to="/complaints/new" className="action-item">
                 <div className="action-icon-container bg-primary-100">
                   <FileText className="w-5 h-5 text-primary-600" />
                 </div>
@@ -223,11 +222,7 @@ const Dashboard = () => {
                   <p className="action-description">Report a new issue in your area</p>
                 </div>
               </Link>
-
-              <Link
-                to="/users"
-                className="action-item"
-              >
+              <Link to="/users" className="action-item">
                 <div className="action-icon-container bg-success-100">
                   <Users className="w-5 h-5 text-success-600" />
                 </div>
@@ -236,11 +231,7 @@ const Dashboard = () => {
                   <p className="action-description">Add or manage system users</p>
                 </div>
               </Link>
-
-              <Link
-                to="/notifications"
-                className="action-item"
-              >
+              <Link to="/notifications" className="action-item">
                 <div className="action-icon-container bg-warning-100">
                   <AlertTriangle className="w-5 h-5 text-warning-600" />
                 </div>

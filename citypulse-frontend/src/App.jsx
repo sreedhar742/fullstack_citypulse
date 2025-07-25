@@ -9,6 +9,8 @@ import NewComplaint from './pages/NewComplaint';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import './pages/base.css';
+import Workers from './pages/workers';
+
 function App() {
   return (
     <AuthProvider>
@@ -51,6 +53,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Users />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/workers"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Workers />
                 </Layout>
               </ProtectedRoute>
             }
