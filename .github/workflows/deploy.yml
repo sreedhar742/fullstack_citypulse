@@ -31,7 +31,7 @@ jobs:
       run: |
         ls -la
         ls -la citypulse-frontend/
-        ls -la citypulse-frontend/build/ || echo "Build directory doesn't exist!"
+        ls -la citypulse-frontend/dist/ || echo "Dist directory doesn't exist!"
         
     - name: Deploy to server via SSH with password
       uses: appleboy/scp-action@master
@@ -39,6 +39,6 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
-        source: "./citypulse-frontend/build/*"
+        source: "./citypulse-frontend/dist/*"
         target: "/var/www/deployment/"
         strip_components: 2
