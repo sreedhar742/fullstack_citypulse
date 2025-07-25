@@ -18,7 +18,9 @@ jobs:
         node-version: 21  # Adjust to your Node version
         
     - name: Install dependencies
-      run: npm i  # Or yarn install --frozen-lockfile
+      run: 
+        cd citypulse-frontend
+        npm ci  # Or yarn install --frozen-lockfile
       
     - name: Build project
       run: |
