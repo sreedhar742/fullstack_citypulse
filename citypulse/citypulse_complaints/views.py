@@ -27,16 +27,21 @@ class ComplaintStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, complaint_id):
-        statuses = ComplaintStatus.objects.filter(complaint_id=complaint_id)
-        serializer = ComplaintStatusSerializer(statuses, many=True)
+        statuses = Complaint.objects.filter(id=complaint_id)
+        serializer = ComplaintSerializer(statuses, many=True)
         return Response(serializer.data)
 
-
+import base64
 class ComplaintCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         print("Received data for complaint creation:", request.data)
+        # if 'image' in request.data:
+        #     print("image data found")
+        #     request.data['image']=base64.b64encode(request.data['image'].read()).decode('utf-8')
+        #     print("encode image data")
+        #     print(request.data['image'][:100])
         serializer = ComplaintSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
