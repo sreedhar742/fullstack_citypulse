@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://13.203.205.29/backend';
-
+// const API_BASE_URL = 'http://13.203.205.29/backend';
+const API_BASE_URL = 'http://13.203.205.29/backend'; // Uncomment this line for local development
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -51,6 +51,7 @@ api.interceptors.response.use(
           
           return api(originalRequest);
         } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError);
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           window.location.href = '/login';
@@ -102,7 +103,7 @@ export const workersAPI = {
 
 // Notifications API
 export const notificationsAPI = {
-  getByUser: (userId) => api.get(`/notifications/user/${userId}/`),
+  getByUser: () => api.get(`/notifications/user/`),
   getUnread: () => api.get('/notifications/unread/'),
   getByTime: (days) => api.get(`/notifications/time/${days}/`),
 };

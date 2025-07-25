@@ -33,9 +33,10 @@ const Notifications = () => {
           response = await notificationsAPI.getByTime(parseInt(filter));
           break;
         default:
-          response = await notificationsAPI.getUnread(); // Fallback to unread
+          response = await notificationsAPI.getByUser(); // Fallback to unread
           break;
       }
+
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
