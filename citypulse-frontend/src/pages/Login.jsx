@@ -123,7 +123,7 @@ const Login = () => {
 
           <div className="login-footer">
             <p className="demo-text">
-              Demo credentials: admin/admin or create a new account
+              Demo credentials: admin/admin
             </p>
           </div>
         </div>
