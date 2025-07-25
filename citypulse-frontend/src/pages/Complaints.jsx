@@ -18,6 +18,24 @@ import StatusBadge from '../components/UI/StatusBadge';
 import Modal from '../components/UI/Modal';
 import './complaints.css';
 
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix missing marker icon issue in Leaflet
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+
+
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
@@ -349,12 +367,32 @@ const Complaints = () => {
             <div className="detail-grid">
               <div className="detail-section">
                 <h4 className="detail-section-title">Location</h4>
-                <div className="detail-location">
-                  <MapPin className="detail-icon-sm" />
-                  <span>
-                    {selectedComplaint.location_lat}, {selectedComplaint.location_lng}
-                  </span>
-                </div>
+                <div className="detail-map-container">
+                  
+                    <MapContainer
+                      center={[
+                        parseFloat(selectedComplaint.location_lat),
+                        parseFloat(selectedComplaint.location_lng),
+                      ]}
+                      zoom={16}
+                      scrollWheelZoom={false}
+                      style={{ height: '250px', width: '100%', borderRadius: '8px', marginTop: '10px' }}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <Marker
+                        position={[
+                          parseFloat(selectedComplaint.location_lat),
+                          parseFloat(selectedComplaint.location_lng),
+                        ]}
+                      >
+                        <Popup>Complaint Location</Popup>
+                      </Marker>
+                    </MapContainer>
+                  </div>
+
               </div>
               <div className="detail-section">
                 <h4 className="detail-section-title">Submitted</h4>

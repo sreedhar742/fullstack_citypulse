@@ -628,3 +628,11 @@
     opacity: 1;
   }
 }
+
+
+
+.detail-map-container {
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
