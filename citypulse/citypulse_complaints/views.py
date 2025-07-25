@@ -31,15 +31,30 @@ class ComplaintStatusView(APIView):
         serializer = ComplaintSerializer(statuses, many=True)
         return Response(serializer.data)
 
-import base64
+from citypulse_notifications.models import Notification
+from django.contrib.auth.models import User
+
 class ComplaintCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         # print(request.data)
+        title=request.data.get('title')
+    
         serializer = ComplaintSerializer(data=request.data)
         
         if serializer.is_valid():
+            # serializer.save(user=request.user)
+            Notification.objects.create(
+                user=request.user,  # assuming complaint.user is the creator
+                message=f"Your complaint '{title}' has been submitted.",
+            )
+            admins = User.objects.filter(profile__role='admin')
+            for admin in admins:
+                Notification.objects.create(
+                    user=admin,
+                    message=f"New complaint '{title}' created by {request.user.username}.",
+                )
             serializer.save(user=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)

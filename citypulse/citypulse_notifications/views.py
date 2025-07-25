@@ -8,8 +8,8 @@ from django.utils.timezone import now, timedelta
 class NotificationsByUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, user_id):
-        notifications = Notification.objects.filter(user_id=user_id)
+    def get(self, request):
+        notifications = Notification.objects.filter(user=request.user)
         serializer = NotificationSerializer(notifications, many=True)
         return Response(serializer.data)
 
