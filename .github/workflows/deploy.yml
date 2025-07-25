@@ -33,12 +33,24 @@ jobs:
         ls -la citypulse-frontend/
         ls -la citypulse-frontend/dist/ || echo "Dist directory doesn't exist!"
         
-    - name: Deploy to server via SSH with password
+    - name: Upload files to temp directory
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
         source: "./citypulse-frontend/dist/*"
-        target: "/var/www/deployment/"
-        strip_components: 2
+        target: "/home/${{ secrets.USERNAME }}/temp-deploy"
+        strip_components: 0
+
+    - name: Move files to /var/www/deployment using sudo
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: |
+          sudo mkdir -p /var/www/deployment
+          sudo rm -rf /var/www/deployment/*
+          sudo mv /home/${{ secrets.USERNAME }}/temp-deploy/* /var/www/deployment/
+          sudo rm -rf /home/${{ secrets.USERNAME }}/temp-deploy
