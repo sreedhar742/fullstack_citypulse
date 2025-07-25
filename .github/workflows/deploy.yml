@@ -15,10 +15,10 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: 18  # Adjust to your Node version
+        node-version: 21  # Adjust to your Node version
         
     - name: Install dependencies
-      run: npm ci  # Or yarn install --frozen-lockfile
+      run: npm i  # Or yarn install --frozen-lockfile
       
     - name: Build project
       run: |
