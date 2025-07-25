@@ -23,6 +23,7 @@ class Complaint(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
+    status= models.CharField(max_length=20, default='pending')
 
     def __str__(self):
         return self.title
