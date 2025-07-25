@@ -2,7 +2,7 @@ name: Deploy Frontend
 
 on:
   push:
-    branches: [ main ]  # Or your default branch name
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
@@ -15,22 +15,30 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: 21  # Adjust to your Node version
+        node-version: 21
         
     - name: Install dependencies
       run: |
         cd citypulse-frontend
-        npm ci  # Or yarn install --frozen-lockfile
-      
+        npm ci
+        
     - name: Build project
       run: |
         cd citypulse-frontend
-        npm run build  # Or your build command
+        npm run build
+        
+    - name: Debug - Verify build output
+      run: |
+        ls -la
+        ls -la citypulse-frontend/
+        ls -la citypulse-frontend/build/ || echo "Build directory doesn't exist!"
+        
     - name: Deploy to server via SSH with password
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
-        source: "citypulse-frontend/build/"  # Your build output folder
-        target: "/var/www/deployments/"
+        source: "./citypulse-frontend/build/*"
+        target: "/var/www/deployment/"
+        strip_components: 2
