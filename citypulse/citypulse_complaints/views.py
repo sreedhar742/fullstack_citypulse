@@ -38,9 +38,7 @@ class ComplaintCreateView(APIView):
     def post(self, request):
         print("Received data for complaint creation:", request.data)
         serializer = ComplaintSerializer(data=request.data)
-        print("Serializer data:", serializer.initial_data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=201)
-        print("Validation errors:", serializer.errors)  # Log the validation errors
         return Response(serializer.errors, status=400)
