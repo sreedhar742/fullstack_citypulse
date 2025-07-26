@@ -19,9 +19,7 @@ class AddWorkerOrUserAPIView(APIView):
         if user_is_valid and profile_is_valid:
             user = user_serializer.save()
             user_data = user_serializer.validated_data
-            print(f"Creating user: {user_data}")
             profile_data = profile_serializer.validated_data
-            print(f"Creating profile for user: {profile_data}")
             Profile.objects.create(user=user, **profile_data)
             if profile_data.get('role') == 'worker':
                 Worker.objects.create(
@@ -29,7 +27,7 @@ class AddWorkerOrUserAPIView(APIView):
                     name=user_data.get('username'),
                     phone=profile_data.get('phone'),
                     email=user_data.get('email'),
-                    specialization=profile_data.get('specialization', 'garbage'),  # Default to 'garbage' if not provided
+                    specialization=profile_data.get('specialization', 'garbage'),
                 )
             return Response({"message": "User and profile created successfully."}, status=201)
 
