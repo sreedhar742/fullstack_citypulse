@@ -16,3 +16,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['id', 'user', 'role', 'phone', 'address']
+        extra_kwargs = {
+            'user': {'required': False}
+        }
