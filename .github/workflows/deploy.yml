@@ -43,7 +43,7 @@ jobs:
         target: "/home/${{ secrets.USERNAME }}/temp-deploy"
         strip_components: 0
 
-    - name: Move files to /var/www/deployment using sudo with -S
+    - name: Move files to /var/www/deployment using sudo and reload nginx
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -54,3 +54,6 @@ jobs:
           echo "${{ secrets.SSH_PASSWORD }}" | sudo -S rm -rf /var/www/deployment/*
           echo "${{ secrets.SSH_PASSWORD }}" | sudo -S mv /home/${{ secrets.USERNAME }}/temp-deploy/* /var/www/deployment/
           echo "${{ secrets.SSH_PASSWORD }}" | sudo -S rm -rf /home/${{ secrets.USERNAME }}/temp-deploy
+          echo "✅ Frontend deployed successfully. Reloading Nginx..."
+          echo "${{ secrets.SSH_PASSWORD }}" | sudo -S systemctl reload nginx
+          echo "🚀 Nginx reloaded successfully!"

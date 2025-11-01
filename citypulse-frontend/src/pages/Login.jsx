@@ -49,7 +49,7 @@ const Login = () => {
             <span className="logo-text">C</span>
           </div>
           <h2 className="login-title">Welcome to CityPulse</h2>
-          <p className="login-subtitle">Sign in to your account to continue</p>
+          <p className="login-subtitle">Application is Under Demo Please Login</p>
         </div>
 
         <div className="login-card">
@@ -115,7 +115,7 @@ const Login = () => {
               ) : (
                 <>
                   <LogIn className="button-icon" />
-                  <span>Sign In</span>
+                  <span>Login</span>
                 </>
               )}
             </button>
