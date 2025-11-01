@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
 
   useEffect(() => {
     checkAuthStatus();
@@ -26,11 +27,10 @@ export const AuthProvider = ({ children }) => {
       try {
         const response = await authAPI.getCurrentUser();
         setUser(response.data);
+        setAccessToken(token);
         setIsAuthenticated(true);
       } catch (error) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        setIsAuthenticated(false);
+        logout();
       }
     }
     setLoading(false);
@@ -40,20 +40,36 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.login(credentials);
       const { access, refresh } = response.data;
-      
+
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
-      
+
       const userResponse = await authAPI.getCurrentUser();
       setUser(userResponse.data);
+      setAccessToken(access);
       setIsAuthenticated(true);
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Login failed' 
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Login failed',
       };
+    }
+  };
+
+  const refreshAccessToken = async () => {
+    const refresh = localStorage.getItem('refresh_token');
+    try {
+      const response = await authAPI.refresh(refresh);
+      const { access } = response.data;
+      localStorage.setItem('access_token', access);
+      setAccessToken(access);
+      return access;
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      logout();
+      return null;
     }
   };
 
@@ -61,8 +77,20 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setUser(null);
+    setAccessToken(null);
     setIsAuthenticated(false);
   };
+
+  // auto-refresh access token every 4 mins
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isAuthenticated) {
+        refreshAccessToken();
+      }
+    }, 4 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   const value = {
     user,
@@ -70,6 +98,8 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     login,
     logout,
+    accessToken,
+    refreshAccessToken,
   };
 
   return (

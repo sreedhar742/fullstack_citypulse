@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if available
+// Inject access token into headers if present
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) {
@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
   
   // Don't override Content-Type if it's already set (for multipart/form-data)
   if (config.headers['Content-Type'] === 'multipart/form-data') {
-    delete config.headers['Content-Type']; // Let the browser set it with the boundary
+    delete config.headers['Content-Type'];
   }
   
   return config;
@@ -99,13 +99,16 @@ export const workersAPI = {
   getTasks: () => api.get('/tasks/'),
   getWorkerTasks: (workerId) => api.get(`/tasks/worker/${workerId}/`),
   getAssignedTasks: (workerId) => api.get(`/tasks/assigned/?worker_id=${workerId}`),
+  assignTask: (taskData) => api.post('/task/assign/', taskData),
 };
 
 // Notifications API
 export const notificationsAPI = {
-  getByUser: () => api.get(`/notifications/user/`),
+  getByUser: () => api.get('/notifications/user/'),
   getUnread: () => api.get('/notifications/unread/'),
   getByTime: (days) => api.get(`/notifications/time/${days}/`),
+  markAsRead: (notificationId) => api.post(`/notifications/mark-read/${notificationId}/`),
+  markAllAsRead: () => api.post('/notifications/mark-read/'),
 };
 
 export default api;

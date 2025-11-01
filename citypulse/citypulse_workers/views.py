@@ -4,6 +4,21 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Worker, AssignedTask
 from .serializers import WorkerSerializer, AssignedTaskSerializer
 
+class TaskassignmentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        complaint_id=request.data.get('complaint_id')
+        worker_id=request.data.get('worker_id')
+        if not complaint_id or not worker_id:   
+            return Response({"error": "complaint_id and worker_id are required"}, status=400)
+        
+        
+        task = AssignedTask.objects.create(worker=worker_id,complaint=complaint_id)
+        task.save()
+        serializer = AssignedTaskSerializer(task)
+        return Response(serializer.data)
+
 class AllWorkersAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

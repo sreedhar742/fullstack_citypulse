@@ -33,6 +33,8 @@ class ComplaintStatusView(APIView):
 
 from citypulse_notifications.models import Notification
 from django.contrib.auth.models import User
+from citypulse_notifications.utils import send_notification
+
 
 class ComplaintCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -45,18 +47,31 @@ class ComplaintCreateView(APIView):
         
         if serializer.is_valid():
             serializer.save(user=request.user)
-            Notification.objects.create(
-                user=request.user,  # assuming complaint.user is the creator
-                message=f"Your complaint '{title}' has been submitted.",
-                complaint=serializer.instance
-            )
-            admins = User.objects.filter(profile__role='admin')
-            for admin in admins:
-                Notification.objects.create(
-                    user=admin,
-                    message=f"New complaint '{title}' created by {request.user.username}.",
+            # Notification.objects.create(
+            #     user=request.user,  # assuming complaint.user is the creator
+            #     message=f"Your complaint '{title}' has been submitted.",
+            #     complaint=serializer.instance
+            # )
+            # admins = User.objects.filter(profile__role='admin')
+            # for admin in admins:
+            #     Notification.objects.create(
+            #         user=admin,
+            #         message=f"New complaint '{title}' created by {request.user.username}.",
+            #         complaint=serializer.instance
+            #     )
+            send_notification(
+                    user=request.user,
+                    message=f"Your complaint '{title}' has been submitted.",
                     complaint=serializer.instance
                 )
+
+            admins = User.objects.filter(profile__role='admin')
+            for admin in admins:
+                    send_notification(
+                        user=admin,
+                        message=f"New complaint '{title}' created by {request.user.username}.",
+                        complaint=serializer.instance
+                    )
             # serializer.save(user=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)

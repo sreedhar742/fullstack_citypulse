@@ -170,8 +170,8 @@ const NewComplaint = () => {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="complaint-title">File New Complaint</h1>
-          <p className="complaint-subtitle">Report an issue in your area</p>
+          <h1 >File New Complaint</h1><br />
+          <h3>Report an issue in your area</h3><br />
         </div>
       </div>
 

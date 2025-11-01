@@ -4,6 +4,7 @@ from .views import (
     AllTasksAPIView,
     WorkerAssignedTasksAPIView,
     AssignedTasksByWorkerAPIView,
+    TaskassignmentView
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('tasks/', AllTasksAPIView.as_view(), name='all-tasks'),
     path('tasks/worker/<int:worker_id>/', WorkerAssignedTasksAPIView.as_view(), name='worker-assigned-tasks'),
     path('tasks/assigned/', AssignedTasksByWorkerAPIView.as_view(), name='assigned-tasks-by-worker'),
+    path('task/assign/', TaskassignmentView.as_view(), name='task-assignment'),
 ]

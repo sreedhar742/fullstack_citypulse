@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-04y3u^#*+7c(#2tnqo@xb@!q$_t!uy_t7d3*4r7=p4-got&_hb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]  # ✅ Correct
+
 
 
 # Application definition
@@ -45,11 +46,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
-
+    'channels',  # Add this line
 ]
 CORS_ALLOWED_ORIGINS = [
     # "https://example.com",
-    "http://localhost:3000",
+    "http://localhost:5173",
     # "http://159.89.167.189/"
     # Add more origins as needed
 ]
@@ -93,8 +94,19 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'citypulse.wsgi.application'
+ASGI_APPLICATION = 'citypulse.asgi.application'
 
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        # For production, use Redis:
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "CONFIG": {
+        #     "hosts": [("redis-server-name", 6379)],
+        # },
+    },
+}
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
